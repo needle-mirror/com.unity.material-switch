@@ -13,11 +13,12 @@ namespace Unity.MaterialSwitch
         void UpdateSampledColors()
         {
             var clip          = target as MaterialSwitchClip;
-            var globalTexture = clip.globalTexture;
+            var globalTexture = clip.globalPalettePropertyMap.texture;
             foreach (var map in clip.palettePropertyMap)
             {
                 var textureToUse = map.texture == null ? globalTexture : map.texture;
                 if (textureToUse == null) continue;
+                if(!textureToUse.isReadable) continue;
                 foreach (var c in map.colorCoordinates)
                 {
                     c.targetValue = textureToUse.GetPixel((int) c.uv.x, (int) c.uv.y);
@@ -52,116 +53,131 @@ namespace Unity.MaterialSwitch
                 HandleContextClick();
             serializedObject.Update();
             
-            var globalTextureProperty = serializedObject.FindProperty("globalTexture");
+            
             
             GUILayout.BeginVertical("box");
-            EditorGUI.indentLevel--;
-            GUILayout.Label("Global");
-            EditorGUILayout.PropertyField(globalTextureProperty, new GUIContent("Global Palette Texture"));
-            var globalPaletteTexture = globalTextureProperty.objectReferenceValue as Texture2D;
-            if (globalPaletteTexture != null && !globalPaletteTexture.isReadable)
-            {
-                GUILayout.BeginHorizontal();
-                EditorGUILayout.HelpBox("Texture is not marked as readable!", MessageType.Error);
-                if (GUILayout.Button("Fix")) 
-                    MakeTextureReadable(globalPaletteTexture);
-                GUILayout.EndHorizontal();
-            }
+            
+            GUILayout.Label("Global Properties");
+            var globalPalettePropertyMap = serializedObject.FindProperty(nameof(MaterialSwitchClip.globalPalettePropertyMap));
+            DrawPalettePropertyMapUI(globalPalettePropertyMap, null);                        
 
             EditorGUI.indentLevel += 1;
             EditorGUILayout.EndVertical();
-
-            SerializedProperty palettePropertyMap = serializedObject.FindProperty("palettePropertyMap");
+            GUILayout.Space(16);
+            GUILayout.BeginVertical("box");
+            GUILayout.Label("Per Material Properties");
+            var palettePropertyMap = serializedObject.FindProperty(nameof(MaterialSwitchClip.palettePropertyMap));
+            
             for (var i = 0; i < palettePropertyMap.arraySize; i++)
             {
                 var ppm = palettePropertyMap.GetArrayElementAtIndex(i);
-                GUILayout.BeginVertical("box");
-                EditorGUI.indentLevel--;
-                EditorGUILayout.PropertyField(ppm.FindPropertyRelative("material"));
-                var textureProperty = ppm.FindPropertyRelative("texture");
-                EditorGUI.indentLevel += 1;
-                EditorGUILayout.PropertyField(textureProperty, new GUIContent("Palette Texture"));
-                if (textureProperty.objectReferenceValue != null)
-                {
-                    var t = textureProperty.objectReferenceValue as Texture2D;
-                    if (!t.isReadable)
-                    {
-                        GUILayout.BeginHorizontal();
-                        EditorGUILayout.HelpBox("Texture is not marked as readable!", MessageType.Error);
-                        if (GUILayout.Button("Fix"))
-                            MakeTextureReadable(t);
-                        GUILayout.EndHorizontal();
-                    }
-                }
-
-                if (globalPaletteTexture != null || textureProperty.objectReferenceValue != null)
-                {
-                    DrawPropertyOverrideList(ppm, "showCoords", "Color Properties", "colorCoordinates",
-                        (itemProperty) =>
-                        {
-                            var displayNameProperty = itemProperty.FindPropertyRelative("displayName");
-                            GUILayout.BeginVertical("box");
-                            EditorGUILayout.LabelField($"{displayNameProperty.stringValue}");
-                            GUILayout.BeginHorizontal();
-                            GUILayout.Label("Sampled Color");
-                            var rect                = GUILayoutUtility.GetRect(18, 18);
-                            var targetValueProperty = itemProperty.FindPropertyRelative("targetValue");
-                            EditorGUI.DrawRect(rect, targetValueProperty.colorValue);
-                            GUILayout.EndHorizontal();
-                            GUILayout.BeginHorizontal();
-                            EditorGUILayout.PropertyField(itemProperty.FindPropertyRelative("uv"));
-                            var texture = ppm.FindPropertyRelative("texture").objectReferenceValue as Texture2D;
-
-                            var textureToUse = texture == null ? globalPaletteTexture:texture;
-                            GUI.enabled = textureToUse != null;
-                            if (GUILayout.Button("Pick") || GUI.Button(rect, GUIContent.none, "label"))
-                            {
-                                rect = GUIUtility.GUIToScreenRect(rect);
-                                CoordPickerWindow.Open(this, textureToUse, itemProperty, rect);
-                            }
-
-                            GUI.enabled = true;
-                            GUILayout.EndHorizontal();
-                            GUILayout.EndVertical();
-                        });
-                }
-
-
-                DrawPropertyOverrideList(ppm, "showTextures", "Texture Properties", "textureProperties");
-                DrawPropertyOverrideList(ppm, "showFloats", "Float Properties", "floatProperties", (itemProperty) =>
-                {
-                    GUILayout.BeginVertical("box");
-                    EditorGUILayout.LabelField($"{itemProperty.FindPropertyRelative("displayName").stringValue}");
-                    EditorGUILayout.PropertyField(itemProperty.FindPropertyRelative("baseValue"));
-                    var limits = itemProperty.FindPropertyRelative("rangeLimits");
-                    if (limits != null)
-                    {
-                        var targetValueProperty = itemProperty.FindPropertyRelative("targetValue");
-                        var minmax              = limits.vector2Value;
-                        var originalValue       = targetValueProperty.floatValue;
-                        var newValue            = EditorGUILayout.Slider(originalValue, minmax.x, minmax.y);
-                        if (originalValue != newValue)
-                        {
-                            targetValueProperty.floatValue = newValue;
-                        }
-                    }
-                    else
-                    {
-                        EditorGUILayout.PropertyField(itemProperty.FindPropertyRelative("targetValue"));
-                    }
-
-                    GUILayout.EndVertical();
-                });
-
-
-                GUILayout.EndVertical();
+                DrawPalettePropertyMapUI(ppm, globalPalettePropertyMap);
             }
+            GUILayout.EndVertical();
 
             if (serializedObject.ApplyModifiedProperties())
             {
                 UpdateSampledColors();
                 serializedObject.ApplyModifiedProperties();
             }
+        }
+        
+        private void DrawPalettePropertyMapUI(SerializedProperty ppm, SerializedProperty globalPalettePropertyMap)
+        {
+            GUILayout.BeginVertical("box");
+            EditorGUI.indentLevel--;
+            if (globalPalettePropertyMap != null)
+            {
+                //This is a per material ppm, so draw the material field.
+                EditorGUILayout.PropertyField(ppm.FindPropertyRelative(nameof(PalettePropertyMap.material)));
+            }
+
+            var textureProperty = ppm.FindPropertyRelative(nameof(PalettePropertyMap.texture));
+            var globalTextureProperty = globalPalettePropertyMap?.FindPropertyRelative(nameof(PalettePropertyMap.texture));
+            
+            EditorGUI.indentLevel += 1;
+            EditorGUILayout.PropertyField(textureProperty, new GUIContent("Palette Texture"));
+            if (textureProperty.objectReferenceValue != null)
+            {
+                var t = textureProperty.objectReferenceValue as Texture2D;
+                if (!t.isReadable)
+                {
+                    GUILayout.BeginHorizontal();
+                    EditorGUILayout.HelpBox("Texture is not marked as readable!", MessageType.Error);
+                    if (GUILayout.Button("Fix"))
+                        MakeTextureReadable(t);
+                    GUILayout.EndHorizontal();
+                }
+            }
+
+
+            DrawPropertyOverrideList(ppm, "showCoords", "Color Properties", "colorCoordinates",
+                (itemProperty) =>
+                {
+                    var displayNameProperty = itemProperty.FindPropertyRelative(nameof(ColorProperty.displayName));
+                    GUILayout.BeginVertical("box");
+                    EditorGUILayout.LabelField($"{displayNameProperty.stringValue}");
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label("Sampled Color");
+                    var texture = ppm.FindPropertyRelative(nameof(PalettePropertyMap.texture)).objectReferenceValue as Texture2D;
+                    var globalPaletteTexture = globalTextureProperty?.objectReferenceValue as Texture2D;
+                    if (texture == null && globalPaletteTexture == null)
+                    {
+                        EditorGUILayout.PropertyField(itemProperty.FindPropertyRelative(nameof(ColorProperty.targetValue)),
+                            GUIContent.none);
+                    }
+                    else
+                    {
+                        var rect = GUILayoutUtility.GetRect(18, 18);
+                        var targetValueProperty = itemProperty.FindPropertyRelative(nameof(ColorProperty.targetValue));
+                        EditorGUI.DrawRect(rect, targetValueProperty.colorValue);
+                        GUILayout.EndHorizontal();
+                        GUILayout.BeginHorizontal();
+                        EditorGUILayout.PropertyField(itemProperty.FindPropertyRelative(nameof(ColorProperty.uv)));
+                        var textureToUse = texture == null ? globalPaletteTexture : texture;
+                        GUI.enabled = textureToUse != null;
+                        if (GUILayout.Button("Pick") || GUI.Button(rect, GUIContent.none, "label"))
+                        {
+                            rect = GUIUtility.GUIToScreenRect(rect);
+                            CoordPickerWindow.Open(this, textureToUse, itemProperty, rect);
+                        }
+                    }
+
+                    GUI.enabled = true;
+                    GUILayout.EndHorizontal();
+                    GUILayout.EndVertical();
+                });
+
+
+            DrawPropertyOverrideList(ppm, "showTextures", "Texture Properties", "textureProperties");
+            DrawPropertyOverrideList(ppm, "showFloats", "Float Properties", "floatProperties", (itemProperty) =>
+            {
+                GUILayout.BeginVertical("box");
+                EditorGUILayout.LabelField(
+                    $"{itemProperty.FindPropertyRelative(nameof(FloatProperty.displayName)).stringValue}");
+                //EditorGUILayout.PropertyField(itemProperty.FindPropertyRelative(nameof(FloatProperty.baseValue)));
+                var limits = itemProperty.FindPropertyRelative(nameof(RangeProperty.rangeLimits));
+                if (limits != null)
+                {
+                    var targetValueProperty = itemProperty.FindPropertyRelative(nameof(FloatProperty.targetValue));
+                    var minmax = limits.vector2Value;
+                    var originalValue = targetValueProperty.floatValue;
+                    var newValue = EditorGUILayout.Slider(originalValue, minmax.x, minmax.y);
+                    if (originalValue != newValue)
+                    {
+                        targetValueProperty.floatValue = newValue;
+                    }
+                }
+                else
+                {
+                    EditorGUILayout.PropertyField(itemProperty.FindPropertyRelative(nameof(FloatProperty.targetValue)));
+                }
+
+                GUILayout.EndVertical();
+            });
+
+
+            GUILayout.EndVertical();
         }
 
         private void DrawPropertyOverrideList(SerializedProperty ppm, string togglePropertyPath, string heading,
@@ -180,9 +196,9 @@ namespace Unity.MaterialSwitch
                     for (var j = 0; j < propertyList.arraySize; j++)
                     {
                         var itemProperty        = propertyList.GetArrayElementAtIndex(j);
-                        var displayNameProperty = itemProperty.FindPropertyRelative("displayName");
+                        var displayNameProperty = itemProperty.FindPropertyRelative(nameof(MaterialSwitchProperty.displayName));
 
-                        var overrideBaseValueProperty = itemProperty.FindPropertyRelative("overrideBaseValue");
+                        var overrideBaseValueProperty = itemProperty.FindPropertyRelative(nameof(MaterialSwitchProperty.overrideBaseValue));
                         menu.AddItem(new GUIContent(displayNameProperty.stringValue),
                             overrideBaseValueProperty.boolValue, ToggleOverrideBaseValueProperty, itemProperty);
                         if (!overrideBaseValueProperty.boolValue) continue;
@@ -190,9 +206,9 @@ namespace Unity.MaterialSwitch
                         {
                             GUILayout.BeginVertical("box");
                             EditorGUILayout.LabelField(
-                                $"{itemProperty.FindPropertyRelative("displayName").stringValue}");
+                                $"{displayNameProperty.stringValue}");
 
-                            EditorGUILayout.PropertyField(itemProperty.FindPropertyRelative("baseValue"));
+                            //EditorGUILayout.PropertyField(itemProperty.FindPropertyRelative("baseValue"));
                             EditorGUILayout.PropertyField(itemProperty.FindPropertyRelative("targetValue"),
                                 new GUIContent("New Value"));
                             GUILayout.EndVertical();

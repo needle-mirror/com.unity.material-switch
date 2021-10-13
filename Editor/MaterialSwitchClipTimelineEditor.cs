@@ -26,6 +26,13 @@ namespace Unity.MaterialSwitch
                 return;
             if (!selectionGroup.TryGetComponent<MaterialGroup>(out MaterialGroup materialGroup))
                 materialGroup = selectionGroup.gameObject.AddComponent<MaterialGroup>();
+            
+            var asset = clip.asset as MaterialSwitchClip;
+            if (asset.globalPalettePropertyMap == null || asset.globalPalettePropertyMap.needsUpdate)
+            {
+                asset.globalPalettePropertyMap =
+                    MaterialSwitchUtility.InitPalettePropertyMap(materialGroup.sharedMaterials);
+            }
         }
 
         public override void OnCreate(TimelineClip clip, TrackAsset track, TimelineClip clonedFrom)
@@ -54,14 +61,20 @@ namespace Unity.MaterialSwitch
             }
             if (asset.palettePropertyMap != null)
             {
-                Debug.LogError("PalettePropertyMap is already created.");
+                //This should be ok, probably from a duplicate operation.
+                
+                //Debug.LogError("PalettePropertyMap is already created.");
+                
                 return;
             }
+
+            asset.globalPalettePropertyMap =
+                MaterialSwitchUtility.InitPalettePropertyMap(materialPropertyGroup.sharedMaterials);
             asset.palettePropertyMap = new List<PalettePropertyMap>(materialPropertyGroup.sharedMaterials.Length);
             for (var i = 0; i < materialPropertyGroup.sharedMaterials.Length; i++)
             {
                 var ppm = MaterialSwitchUtility.InitPalettePropertyMap(materialPropertyGroup.sharedMaterials[i]);
-                asset.palettePropertyMap[i] = ppm;
+                asset.palettePropertyMap.Add(ppm);
             }
         }
     }
