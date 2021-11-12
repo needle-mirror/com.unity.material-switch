@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 namespace Unity.MaterialSwitch
@@ -20,9 +21,22 @@ namespace Unity.MaterialSwitch
         
         internal static PalettePropertyMap InitPalettePropertyMap(Material[] materials)
         {
-            var ppm = new PalettePropertyMap();
+            PalettePropertyMap ppm = new PalettePropertyMap() 
+            {
+                needsUpdate = false,
+            };
+            var materialProperties = new List<MaterialProperty>();
+
+            foreach (var i in materials)
+            {
+                var mps = MaterialEditor.GetMaterialProperties(new[] {i});
+                if (mps == null) continue;
+                materialProperties.AddRange(mps);
+            }
             
-            var materialProperties = MaterialEditor.GetMaterialProperties(materials);
+            if (materialProperties.Count == 0)
+                return ppm;
+            
             foreach (var mp in materialProperties)
             {
                 if (mp.flags.HasFlag(MaterialProperty.PropFlags.HideInInspector))
@@ -87,7 +101,6 @@ namespace Unity.MaterialSwitch
                 }
             }
 
-            ppm.needsUpdate = false;
             return ppm;
         }
     }
