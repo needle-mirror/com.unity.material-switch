@@ -2,7 +2,7 @@
   "displayName": "Material Switch",
   "name": "com.unity.material-switch",
   "unity": "2019.4",
-  "version": "0.6.4-preview",
+  "version": "0.6.5-preview",
   "description": "Provides tools for switch material attributes over a number of renderers at once.",
   "contributors": [
     "Simon Wittber <simonwittber@unity3d.com> (https://github.com/smnwttbr)",
@@ -11,15 +11,15 @@
   ],
   "dependencies": {
     "com.unity.film-internal-utilities": "0.12.2-preview",
-    "com.unity.selection-groups": "0.5.4-preview",
+    "com.unity.selection-groups": "0.6.2-preview",
     "com.unity.timeline": "1.5.7"
   },
   "upmCi": {
-    "footprint": "d92b4cb79ec44ab079dcc254c8c757bbb6cbd6d9"
+    "footprint": "da94c65412f7abf78dfaea2f7cec495a6f796b34"
   },
   "repository": {
     "url": "https://github.com/Unity-Technologies/com.unity.material-switch.git",
     "type": "git",
-    "revision": "825d52fff9c1102cfd6f185f1461cdd3a7586d46"
+    "revision": "e6e999eb4902a140b5800af12681267d07722c41"
   }
 }
