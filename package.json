@@ -2,7 +2,7 @@
   "displayName": "Material Switch",
   "name": "com.unity.material-switch",
   "unity": "2019.4",
-  "version": "0.7.0-preview",
+  "version": "0.7.1-preview",
   "description": "Provides tools for switch material attributes over a number of renderers at once.",
   "contributors": [
     "Simon Wittber <simonwittber@unity3d.com> (https://github.com/smnwttbr)",
@@ -10,19 +10,19 @@
     "Unity Technologies Japan"
   ],
   "dependencies": {
-    "com.unity.film-internal-utilities": "0.13.0-preview",
+    "com.unity.film-internal-utilities": "0.14.1-preview",
     "com.unity.selection-groups": "0.7.1-preview",
     "com.unity.timeline": "1.5.7"
   },
   "upm": {
-    "changelog": "### Added\r\n\r\n* feat: allow copy paste between global and per material settings (#79)\r\n* api: open MaterialSwitchTrack, MaterialSwitchClip, MaterialProperties, and MaterialSwitchProperty to public"
+    "changelog": "### Changed\r\n* deps: use com.unity.film-internal-utilities@0.14.1-preview"
   },
   "upmCi": {
-    "footprint": "a72e67f508a7bd19d7a6ca51a8c267794bc62785"
+    "footprint": "43f37a54b3eadbcef4321911406859f9568d8b89"
   },
   "repository": {
     "url": "https://github.com/Unity-Technologies/com.unity.material-switch.git",
     "type": "git",
-    "revision": "1815d619bbedacc874b32be47b36324e65e5b3d7"
+    "revision": "fc08519bdf8187bc466a17a4e96daacf3bfacad0"
   }
 }
