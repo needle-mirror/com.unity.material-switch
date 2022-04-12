@@ -15,11 +15,13 @@ namespace Unity.MaterialSwitch
     internal class MaterialSwitchClipEditor : Editor
     {
         bool showTextureProperties;
-        private static MaterialSwitchClip copySource;
-        private static int sourceIndex;
+        
+        private static MaterialPropertiesClipboardData copyClipboardData;
+        
         private string errorMessage = null;
 
-        private HashSet<Material> activeMaterials = null;
+        private HashSet<Material> activeMaterials = new HashSet<Material>();
+        
         private GUIContent RemoveButtonGuiContent;
         private GUIContent SettingsGuiContent;
 
@@ -45,40 +47,15 @@ namespace Unity.MaterialSwitch
             var menu = new GenericMenu();
             menu.AddItem(new GUIContent("Copy Settings"), false, () =>
             {
-                copySource = Instantiate(target) as MaterialSwitchClip;
-                sourceIndex = targetIndex;
+                copyClipboardData = MaterialPropertiesClipboardData.Create(target as MaterialSwitchClip, targetIndex);
             });
-            if(copySource == null)
+            if(copyClipboardData == null)
                 menu.AddDisabledItem(new GUIContent("Paste Settings"));
             else
                 menu.AddItem(new GUIContent("Paste Settings"), false, () =>
                 {
                     var targetClip = target as MaterialSwitchClip;
-                    Undo.RecordObject(targetClip, "Paste");
-                    //negative targetIndex is reserved for global properties
-                    if (targetIndex < 0)
-                    {
-                        string json;
-                        if (sourceIndex < 0)
-                            json = EditorJsonUtility.ToJson(copySource.globalMaterialProperties);
-                        else
-                            json = EditorJsonUtility.ToJson(copySource.materialPropertiesList[sourceIndex]);
-                        EditorJsonUtility.FromJsonOverwrite(json, targetClip.globalMaterialProperties);
-                    }
-                    else
-                    {
-                        //preserve material reference, this is not normally changed.
-                        var oldMaterial = targetClip.materialPropertiesList[targetIndex].material;
-                        string json;
-                        if (sourceIndex < 0)
-                            json = EditorJsonUtility.ToJson(copySource.globalMaterialProperties);
-                        else
-                            json = EditorJsonUtility.ToJson(copySource.materialPropertiesList[sourceIndex]);
-
-                        EditorJsonUtility.FromJsonOverwrite(json, targetClip.materialPropertiesList[targetIndex]);
-                        targetClip.materialPropertiesList[targetIndex].material = oldMaterial;
-                    }
-                    
+                    copyClipboardData.PasteInto(targetClip, targetIndex);
                     serializedObject.ApplyModifiedProperties();
                 });
             
@@ -130,7 +107,7 @@ namespace Unity.MaterialSwitch
             if (asset.globalMaterialProperties == null || asset.globalMaterialProperties.needsUpdate)
             {
                 asset.globalMaterialProperties =
-                    MaterialSwitchUtility.CreateMaterialProperties(materialGroup.sharedMaterials);
+                    MaterialSwitchEditorUtility.CreateMaterialProperties(materialGroup.sharedMaterials);
             }
 
             activeMaterials = new HashSet<Material>(materialGroup.sharedMaterials);
@@ -141,7 +118,7 @@ namespace Unity.MaterialSwitch
                 errorMessage = $"Created {missingMaterials.Length} new material maps. These will be saved in the clip asset.";
                 foreach (var material in missingMaterials)
                 {
-                    var materialProperties = MaterialSwitchUtility.CreateMaterialProperties(material);
+                    var materialProperties = MaterialSwitchEditorUtility.CreateMaterialProperties(material);
                     asset.materialPropertiesList.Add(materialProperties);
                 }
                 EditorUtility.SetDirty(asset);
