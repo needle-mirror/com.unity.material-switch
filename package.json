@@ -2,7 +2,7 @@
   "displayName": "Material Switch",
   "name": "com.unity.material-switch",
   "unity": "2019.4",
-  "version": "0.7.2-preview",
+  "version": "0.7.3-preview",
   "description": "Provides tools for switch material attributes over a number of renderers at once.",
   "contributors": [
     "Simon Wittber <simonwittber@unity3d.com> (https://github.com/smnwttbr)",
@@ -10,19 +10,19 @@
     "Unity Technologies Japan"
   ],
   "dependencies": {
-    "com.unity.film-internal-utilities": "0.14.1-preview",
-    "com.unity.selection-groups": "0.7.3-preview",
+    "com.unity.film-internal-utilities": "0.14.2-preview",
+    "com.unity.selection-groups": "0.7.4-preview",
     "com.unity.timeline": "1.5.7"
   },
   "upm": {
-    "changelog": "### Added\r\n* api: open API to copy and paste material properties of MaterialSwitchClip\r\n* doc: add TableOfContents structure and installation page\r\n* doc: add documentations on MaterialSwitchClip\r\n\r\n### Changed\r\n* deps: use com.unity.selection-groups@0.7.3-preview\r\n* refactor: rename MaterialSwitchUtility (obsolete) to MaterialSwitchEditorUtility \r\n\r\n### Fixed\r\n* fix: null error of activeMaterials in MaterialSwitchClipEditor"
+    "changelog": "### Changed\r\n* deps: use com.unity.film-internal-utilities@0.14.2-preview \r\n* deps: use com.unity.selection-groups@0.7.4-preview"
   },
   "upmCi": {
-    "footprint": "dd90ee0af176d89a4a4184e16d3590bd7ba4d2c7"
+    "footprint": "5cfa0b6d66388996477f6cae9aac3248ceec112a"
   },
   "repository": {
     "url": "https://github.com/Unity-Technologies/com.unity.material-switch.git",
     "type": "git",
-    "revision": "682d3d69b762dd85615e925d3fca6cb3375235a9"
+    "revision": "a3bb707f18ae6959721d72627d7347f5d8601034"
   }
 }
