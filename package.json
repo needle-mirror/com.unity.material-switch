@@ -2,7 +2,7 @@
   "displayName": "Material Switch",
   "name": "com.unity.material-switch",
   "unity": "2019.4",
-  "version": "0.7.3-preview",
+  "version": "0.7.4-preview",
   "description": "Provides tools for switch material attributes over a number of renderers at once.",
   "contributors": [
     "Simon Wittber <simonwittber@unity3d.com> (https://github.com/smnwttbr)",
@@ -10,19 +10,19 @@
     "Unity Technologies Japan"
   ],
   "dependencies": {
-    "com.unity.film-internal-utilities": "0.14.2-preview",
+    "com.unity.film-internal-utilities": "0.15.1-preview",
     "com.unity.selection-groups": "0.7.4-preview",
     "com.unity.timeline": "1.5.7"
   },
-  "upm": {
-    "changelog": "### Changed\r\n* deps: use com.unity.film-internal-utilities@0.14.2-preview \r\n* deps: use com.unity.selection-groups@0.7.4-preview"
+  "_upm": {
+    "changelog": "### Changed\n* deps: use com.unity.film-internal-utilities@0.15.1-preview \n\n### Fixed\n* fix: give per-material settings precedence over global settings in MaterialSwitchClip."
   },
   "upmCi": {
-    "footprint": "5cfa0b6d66388996477f6cae9aac3248ceec112a"
+    "footprint": "1051a80bab54e6060d4f73dc61e3d66227df27d0"
   },
   "repository": {
     "url": "https://github.com/Unity-Technologies/com.unity.material-switch.git",
     "type": "git",
-    "revision": "a3bb707f18ae6959721d72627d7347f5d8601034"
+    "revision": "f328e4970990ef8295260572bee976f7816b1817"
   }
 }
