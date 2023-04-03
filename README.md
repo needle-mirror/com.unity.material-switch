@@ -13,6 +13,11 @@
 ![ReleaseBadge](https://badge-proxy.cds.internal.unity3d.com/e54b07c0-f16e-4790-b214-65b7f306bfeb)
 
 
+## Overview
+
+Material Switch provides tools for switching and blending material parameters over a number of renderers 
+simultaneously using Timeline.
+
 ## Supported Unity Versions and Settings
 
 Unity 2020.3.45 or higher.
@@ -25,6 +30,8 @@ Please refer to the [installation](Documentation~/installation.md) page to insta
 
 # Features
 1. [MaterialSwitchClip](Documentation~/material-switch-clip.md)
+1. [SpriteSwitchClip](Documentation~/sprite-switch-clip.md)
+1. [Property Name Remap](Documentation~/property-name-remap.md)
 
 # License
 - [License](LICENSE.md)
