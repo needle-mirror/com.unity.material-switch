@@ -2,7 +2,7 @@
   "displayName": "Material Switch",
   "name": "com.unity.material-switch",
   "unity": "2020.3",
-  "version": "0.9.1-preview",
+  "version": "0.9.2-preview",
   "description": "Provides tools for switching and blending material parameters over a number of renderers simultaneously using Timeline.",
   "contributors": [
     "Simon Wittber <simonwittber@unity3d.com> (https://github.com/smnwttbr)",
@@ -15,15 +15,15 @@
     "com.unity.timeline": "1.5.7"
   },
   "_upm": {
-    "changelog": "### Added\n* doc: SpriteSwitchClip \n\n### Changed\n* deps: use com.unity.film-internal-utilities@0.18.4-preview\n\n### Fixed\n* fix: prevent users to add MaterialGroup and SpriteGroup manually\n* fix: hide SpriteSwitchEventInvoker GameObject"
+    "changelog": "### Changed\n* doc: update SpriteSwitchClip documentation"
   },
   "upmCi": {
-    "footprint": "399c0b72e4edeba0bebcf6e9375f861429a081bc"
+    "footprint": "6b62d35a8a19de6d7601f3966b606af5dc3b59f7"
   },
   "documentationUrl": "https://docs.unity3d.com/Packages/com.unity.material-switch@0.9/manual/index.html",
   "repository": {
     "url": "https://github.com/Unity-Technologies/com.unity.material-switch.git",
     "type": "git",
-    "revision": "578dd53c4fd1f12f68a0f6b794f3d886f10517d5"
+    "revision": "27e192d066b1bb0b5ee4edb6af281c815ab645f6"
   }
 }
